@@ -9,14 +9,14 @@ SUBSYSTEMS==\"usb\", ENV{DEVTYPE}==\"usb_device\", ATTRS{idVendor}==\"$idVendor\
 echo "$string" >> /etc/udev/rules.d/99-uvc.rules
 
 
-# set mount point of mass storage device 
+# set mount point of mass storage device
 #!/bin/bash
 proc=$(uname -p)
 
 if [ $proc == "x86_64" ]; then
   fstab_str="/dev/disk/by-id/usb-Cypress_FX3-0:0    /media/camera   auto    rw,user,noauto  0       0"
   echo "$fstab_str" >> /etc/fstab
-elif [ $proc == "armv7l" ]; then
+elif [ $proc == "armv7l" ] || [ $proc == "aarch64" ]; then
   str="RUN+=\"/bin/mount -t vfat -o uid=0,gid=46,umask=007 /dev/disk/by-id/usb-Cypress_FX3-0:0 /media/camera\""
   # copy cmd string to usbrules
   echo "$str" > /etc/udev/rules.d/99-uvc-usbdevice.rules
@@ -40,4 +40,3 @@ echo "Unplug the USB device and plug it back in."
 #reload rules
 usermod -a -G dialout $USER
 udevadm control --reload-rules
-

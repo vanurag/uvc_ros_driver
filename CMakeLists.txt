@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(uvc_ros_driver)
 
 # if traget is an ARM processor uncomment this line to compile with NEON instruction
-# set(NEON_FLAGS "-DENABLE_NEON -mfloat-abi=hard -mfpu=neon-vfpv4 -mcpu=cortex-a15 -Ofast")
+# set(NEON_FLAGS "-DENABLE_NEON -march=armv8-a+crc -mtune=cortex-a53 -mcpu=cortex-a53 -Ofast") # Odroid C2
+# set(NEON_FLAGS "-DENABLE_NEON -mfloat-abi=hard -mfpu=neon-vfpv4 -mcpu=cortex-a15 -Ofast") # Odroid XU4
 set(CMAKE_CXX_FLAGS "-std=c++0x ${CMAKE_CXX_FLAGS} -Wno-format-security ${NEON_FLAGS}")
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NEON_FLAGS}")
 
