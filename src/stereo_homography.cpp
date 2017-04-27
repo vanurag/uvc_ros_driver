@@ -150,50 +150,51 @@ void StereoHomography::getHomography(Eigen::Matrix3d &H0, Eigen::Matrix3d &H1,
 	Eigen::Matrix3d R = Rt.transpose();
 	Eigen::Vector3d T = T_rel.block<3, 1>(0, 3);
 
+
 	// Bring the 2 cameras in the same orientation by rotating them "minimally"
 	Eigen::Vector3d om =
 		Eigen::AngleAxisd(R).axis() * Eigen::AngleAxisd(R).angle();
 
-	Eigen::Matrix3d r_1(Eigen::AngleAxisd(om.norm() / (-2.0), om.normalized()));
+	Eigen::Matrix3d r_r(Eigen::AngleAxisd(om.norm() / (-1.0), om.normalized()));
 
-	double zoom = 30.0;
+	double zoom = 00.0;
 
 	if (om.norm() == 0) {
-		r_1.setIdentity();
+		r_r.setIdentity();
 		zoom = 0.0;
 	}
 
-	Eigen::Matrix3d r_0 = r_1.transpose();
-	Eigen::Vector3d t_n = r_1 * T;
+	Eigen::Vector3d t_n = r_r * T;
+	Eigen::Matrix3d r_l = r_r.transpose();
+	r_l.setIdentity();
+	
 
 	// Rotate both cameras so as to bring the translation vector in alignment with
 	// the (1;0;0) axis
 	Eigen::Vector3d uu = Eigen::Vector3d::Zero();
 
-	if (std::abs(t_n(0)) > std::abs(t_n(1))) {
+	/*if (std::abs(t_n(0)) > std::abs(t_n(1))) {
 		uu(0) = 1;  // Horizontal epipolar lines
 
 	} else {
 		uu(1) = 1;  // Vertical epipolar lines
-	}
+	}*/
+
+	uu(0) = 1;
 
 	if (uu.dot(t_n) < 0) {
 		uu = -uu;
 	}
 
-	Eigen::Vector3d ww = t_n.cross(uu);
 
+	Eigen::Vector3d ww = t_n.cross(uu);
 	ww = ww / ww.norm();
 	ww = std::acos(std::abs(t_n.dot(uu)) / (t_n.norm() * uu.norm())) * ww;
 	Eigen::Matrix3d R2(Eigen::AngleAxisd(ww.norm(), ww.normalized()));
 
-	if (t_n.norm() == 0) {
-		R2.setIdentity();
-	}
-
 	// Global rotations to be applied to both views
-	Eigen::Matrix3d R_0 =  R2*r_0;
-	Eigen::Matrix3d R_1 =  R2*r_1;
+	Eigen::Matrix3d R_R =  r_r; //R2*r_r
+	Eigen::Matrix3d R_L =  r_l;
 
 	// The resulting rigid motion between the two cameras after image rotations
 	// (substitutes of om, R and T)
@@ -229,6 +230,8 @@ void StereoHomography::getHomography(Eigen::Matrix3d &H0, Eigen::Matrix3d &H1,
 	double f_y_new = std::min(f0_y_new, f1_y_new) +
 			 zoom;  // HACK(gohlp): 40 to zoom in, should be automatically
 
+	f_y_new = f0_[0];
+
 	// For simplicity, let's pick the same value for the horizontal focal length
 	// as the vertical focal length
 	// (resulting into square pixels)
@@ -244,16 +247,16 @@ void StereoHomography::getHomography(Eigen::Matrix3d &H0, Eigen::Matrix3d &H1,
 	Eigen::Vector2d corner_coord = Eigen::Vector2d::Zero();
 
 	p0_new +=
-		projectPoint2(normalizePixel(corner_coord, f0_, p0_, d0_), R_0, f0_new);
+		projectPoint2(normalizePixel(corner_coord, f0_, p0_, d0_), R_L, f0_new);
 	corner_coord << (image_width_ - 1), 0;
 	p0_new +=
-		projectPoint2(normalizePixel(corner_coord, f0_, p0_, d0_), R_0, f0_new);
+		projectPoint2(normalizePixel(corner_coord, f0_, p0_, d0_), R_L, f0_new);
 	corner_coord << (image_width_ - 1), (image_height_ - 1);
 	p0_new +=
-		projectPoint2(normalizePixel(corner_coord, f0_, p0_, d0_), R_0, f0_new);
+		projectPoint2(normalizePixel(corner_coord, f0_, p0_, d0_), R_L, f0_new);
 	corner_coord << 0, (image_height_ - 1);
 	p0_new +=
-		projectPoint2(normalizePixel(corner_coord, f0_, p0_, d0_), R_0, f0_new);
+		projectPoint2(normalizePixel(corner_coord, f0_, p0_, d0_), R_L, f0_new);
 	Eigen::Vector2d center;
 	center << (image_width_ - 1) / 2.0, (image_height_ - 1) / 2.0;
 	p0_new = center - p0_new / 4.0;
@@ -261,26 +264,31 @@ void StereoHomography::getHomography(Eigen::Matrix3d &H0, Eigen::Matrix3d &H1,
 	p1_new = Eigen::Vector2d::Zero();
 	corner_coord << 0, 0;
 	p1_new +=
-		projectPoint2(normalizePixel(corner_coord, f1_, p1_, d1_), R_1, f1_new);
+		projectPoint2(normalizePixel(corner_coord, f1_, p1_, d1_), R_R, f1_new);
 	corner_coord << (image_width_ - 1), 0;
 	p1_new +=
-		projectPoint2(normalizePixel(corner_coord, f1_, p1_, d1_), R_1, f1_new);
+		projectPoint2(normalizePixel(corner_coord, f1_, p1_, d1_), R_R, f1_new);
 	corner_coord << (image_width_ - 1), (image_height_ - 1);
 	p1_new +=
-		projectPoint2(normalizePixel(corner_coord, f1_, p1_, d1_), R_1, f1_new);
+		projectPoint2(normalizePixel(corner_coord, f1_, p1_, d1_), R_R, f1_new);
 	corner_coord << 0, (image_height_ - 1);
 	p1_new +=
-		projectPoint2(normalizePixel(corner_coord, f1_, p1_, d1_), R_1, f1_new);
+		projectPoint2(normalizePixel(corner_coord, f1_, p1_, d1_), R_R, f1_new);
 	p1_new = center - p1_new / 4.0;
 
 	// For simplicity, set the principal points for both cameras to be the average
-	// of the two principal points
+	// of the two principal poin
 	double py_new = (p0_new(1) + p1_new(1)) / 2.0;
 	p0_new(1) = py_new;
 	p1_new(1) = py_new;
 	double px_new = (p0_new(0) + p1_new(0)) / 2.0;
 	p0_new(0) = px_new;
 	p1_new(0) = px_new;
+
+	p0_new(0) = p0_[0];
+	p0_new(1) = p0_[1];
+	p1_new(0) = p0_[0];
+	p1_new(1) = p0_[1];
 
 	// Original Camera matrices
 	Eigen::Matrix3d C0 = Eigen::Matrix3d::Zero();
@@ -297,8 +305,8 @@ void StereoHomography::getHomography(Eigen::Matrix3d &H0, Eigen::Matrix3d &H1,
 	C1_new << f1_new, 0.0, p1_new(0), 0.0, f1_new, p1_new(1), 0.0, 0.0, 1.0;
 
 	// Compute homography
-	H0 = C0 * R_0.transpose() * C0_new.inverse();
-	H1 = C1 * R_1.transpose() * C1_new.inverse();
+	H0 = C0 * R_L.transpose() * C0_new.inverse();
+	H1 = C1 * R_R.transpose() * C1_new.inverse();
 
 	f_new = f0_new;
 }
