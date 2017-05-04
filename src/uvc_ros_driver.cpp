@@ -571,6 +571,9 @@ void uvcROSDriver::setCalibration(CameraParameters camParams)
 		setParam("STEREO_RE_CAM1", 0.0f);
 		setParam("STEREO_OF_CAM1", 0.0f);
 
+		setParam("PARAM_XOF_CAM1", 120.0f);
+		setParam("PARAM_YOF_CAM1", 0.0f);
+
 		//setParam("COST_SHIFT", 2.0f);
 
 		//setParam("CAMERA_AUTOEXP",0.0f);
