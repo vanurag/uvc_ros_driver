@@ -89,8 +89,8 @@ private:
 	int camera_config_ = 1;
 	int raw_width_ = 768;
 	int raw_height_ = 480;
-	int width_ = raw_width_ - 16;
-	int height_ = raw_height_;
+	int width_ = (raw_width_ - 16) / 2;
+	int height_ = (raw_height_) / 2;
 	int frameCounter_ = 0;
 	int modulo_ = 1;
 	int calibration_mode_ = 0;
@@ -185,6 +185,10 @@ private:
 	sensor_msgs::CameraInfo info_cam_7_;
 	sensor_msgs::CameraInfo info_cam_8_;
 	sensor_msgs::CameraInfo info_cam_9_;
+
+	// image buffers
+	uint8_t *left_buffer = nullptr;
+	uint8_t *right_buffer = nullptr;
 
 	int16_t ShortSwap(int16_t s);
 	uvc_error_t initAndOpenUvc();
@@ -317,7 +321,7 @@ public:
 
 		// update modulo_ variable also
 		if (calibration_mode != 0) {
-			modulo_ = 12;
+			modulo_ = 2;
 		}
 	};
 };
