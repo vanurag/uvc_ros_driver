@@ -21,11 +21,13 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   ait_ros_messages
   image_transport
+  eigen_catkin
+  yaml_cpp_catkin
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-find_package(Eigen3 REQUIRED)
+find_package(eigen_catkin REQUIRED)
 include_directories(${EIGEN3_INCLUDE_DIR})
 add_definitions(${EIGEN3_DEFINITIONS})
 
