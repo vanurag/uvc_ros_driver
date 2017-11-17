@@ -578,8 +578,9 @@ void uvcROSDriver::setCalibration(CameraParameters camParams)
 		//setParam("CAMERA_AUTOG",0.0f);
 		//setParam("CAMERA_GAIN",63.0f);
 
-    setParam("CAMERA_AUTOEXP",1.0f);
-    setParam("CAMERA_AUTOG",1.0f);
+		setParam("CAMERA_AUTOEXP",1.0f);
+		setParam("CAMERA_MAX_E",150.0f);
+		setParam("CAMERA_AUTOG",1.0f);
 
 		setParam("STEREO_MP_01", 0.0f);
 		setParam("STEREO_BAYER_D", 0.0f);

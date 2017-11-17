@@ -8,7 +8,7 @@
   <arg name="AITMsgs" default="false" />
   <!-- calibrationMode 0 no calibration, 1: calibration for 1 camera pair,
       2: calibration for 2 camera pairs and so on -->
-  <arg name="calibrationMode" default="0" />
+  <arg name="calibrationMode" default="1" />
   <arg name="depthMap" default="true" />
   <!-- 1: 2 front cameras, 3: 2 front + 2nd camera pair,
        7: 2 front + 2nd and 3rd camra pair -->
