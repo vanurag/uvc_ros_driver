@@ -1071,30 +1071,32 @@ void uvcROSDriver::uvc_cb(uvc_frame_t *frame)
 	ROS_DEBUG("%lu imu messages", msg_vio.imu.size());
 	ROS_DEBUG("imu id: %d ", imu_id);
 
-	// temp container for the 2 images
-	uint8_t left[(frame_size - 16 * 2 * frame->height) / 2];
-	uint8_t right[(frame_size - 16 * 2 * frame->height) / 2];
-	// read the image data and separate the 2 images
-	deinterleave(static_cast<unsigned char *>(frame->data), left, right,
-		     (size_t)frame_size, frame->width - 16, frame->height);
+  if (frameCounter_ % modulo_ == 0) {
+	  // temp container for the 2 images
+	  uint8_t left[(frame_size - 16 * 2 * frame->height) / 2];
+	  uint8_t right[(frame_size - 16 * 2 * frame->height) / 2];
+	  // read the image data and separate the 2 images
+	  deinterleave(static_cast<unsigned char *>(frame->data), left, right,
+		       (size_t)frame_size, frame->width - 16, frame->height);
 
-	sensor_msgs::fillImage(msg_vio.left_image,
-			       sensor_msgs::image_encodings::MONO8,//BAYER_RGGB8,
-			       frame->height,      // height
-			       frame->width - 16,  // width
-			       frame->width - 16,  // stepSize
-			       left);
+	  sensor_msgs::fillImage(msg_vio.left_image,
+			         sensor_msgs::image_encodings::MONO8,//BAYER_RGGB8,
+			         frame->height,      // height
+			         frame->width - 16,  // width
+			         frame->width - 16,  // stepSize
+			         left);
 
-	//msg_vio.left_image.header.stamp = fpga_frame_time;
+	  //msg_vio.left_image.header.stamp = fpga_frame_time;
 
-	sensor_msgs::fillImage(msg_vio.right_image,
-			       sensor_msgs::image_encodings::MONO8,//BAYER_RGGB8,//
-			       frame->height,      // height
-			       frame->width - 16,  // width
-			       frame->width - 16,  // stepSize
-			       right);
+	  //sensor_msgs::fillImage(msg_vio.right_image,
+		//	         sensor_msgs::image_encodings::MONO8,//BAYER_RGGB8,//
+		//	         frame->height,      // height
+		//	         frame->width - 16,  // width
+		//	         frame->width - 16,  // stepSize
+		//	         right);
 
-	//msg_vio.right_image.header.stamp = fpga_frame_time;
+	  //msg_vio.right_image.header.stamp = fpga_frame_time;
+  }
 
 
 	// publish data
@@ -1102,7 +1104,6 @@ void uvcROSDriver::uvc_cb(uvc_frame_t *frame)
 		// set timestamp of all frames when cameras 8+9 are disabled
 		if(n_cameras_ < 9){
 			frame_time_ = fpga_frame_time;
-			frameCounter_++;
 		}
 		msg_vio.header.stamp = frame_time_;
 		msg_vio.left_image.header.stamp = frame_time_;
@@ -1115,16 +1116,20 @@ void uvcROSDriver::uvc_cb(uvc_frame_t *frame)
 		if (frameCounter_ % modulo_ == 0) {
 			// publish images and camera info
 			cam_0_pub_.publish(msg_vio.left_image);
-			cam_1_pub_.publish(msg_vio.right_image);
+			// cam_1_pub_.publish(msg_vio.right_image);
 
 			// set camera info header
 			setCameraInfoHeader(info_cam_0_, width_, height_, frame_time_,
 					    "cam_0_optical_frame");
-			setCameraInfoHeader(info_cam_1_, width_, height_, frame_time_,
-					    "cam_1_optical_frame");
+			//setCameraInfoHeader(info_cam_1_, width_, height_, frame_time_,
+			//		    "cam_1_optical_frame");
 			// publish camera info
 			cam_0_info_pub_.publish(info_cam_0_);
-			cam_1_info_pub_.publish(info_cam_1_);
+			// cam_1_info_pub_.publish(info_cam_1_);
+		}
+
+    if(n_cameras_ < 9){
+			frameCounter_++;
 		}
 	}
 

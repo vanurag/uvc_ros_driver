@@ -92,7 +92,7 @@ private:
 	int width_ = raw_width_ - 16;
 	int height_ = raw_height_;
 	int frameCounter_ = 0;
-	int modulo_ = 1;
+	int modulo_ = 2;
 	int calibration_mode_ = 0;
 
 	ros::Duration imu_dt_ = ros::Duration(0.0);
