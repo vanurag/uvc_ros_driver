@@ -841,6 +841,20 @@ inline void uvcROSDriver::deinterleave(const uint8_t *mixed, uint8_t *array1,
 		mixed += 32;
 	}
 #else
+  const size_t inputWidth = imageWidth + 16;
+  for(size_t h = 0; h <imageHeight; h++)
+  {
+    const size_t inputRow = h*inputWidth;
+    const size_t outputRow = h*imageWidth;
+    for(size_t w = 0; w < imageWidth; w++)
+    {
+      size_t pos = 2* (inputRow + w);
+      size_t outPos = outputRow+w;
+      array1[outPos] = mixed[pos];
+      array2[outPos] = mixed[pos + 1];
+    }
+  }
+/*
 	while (c < imageWidth * imageHeight) {
 		array1[c] = mixed[2 * i];
 		array2[c] = mixed[2 * i + 1];
@@ -851,6 +865,7 @@ inline void uvcROSDriver::deinterleave(const uint8_t *mixed, uint8_t *array1,
 			i += 16;
 		}
 	}
+*/
 #endif
 }
 
@@ -934,6 +949,7 @@ void uvcROSDriver::uvc_cb(uvc_frame_t *frame)
 
 		count = count & 0x00FF;
 
+    /*
 		double temperature = double(ShortSwap(static_cast<int16_t *>(
 				frame->data)[int((i + 1) * frame->width - 8 + 1)]));
 
@@ -960,6 +976,7 @@ void uvcROSDriver::uvc_cb(uvc_frame_t *frame)
 						 frame->data)[int((i + 1) * frame->width - 8 + 7)]) /
 			       (gyr_scale_factor / deg2rad));
 
+    */
 		// read out micro second timestamp of corresponding line
 		timestamp_upper = ((static_cast<uint16_t *>(
 					    frame->data)[int((i + 1) * frame->width - 10)]) >>
@@ -993,7 +1010,7 @@ void uvcROSDriver::uvc_cb(uvc_frame_t *frame)
 		}
 
 
-
+    /*
 		if (!(count == count_prev)) {
 
 			ros::Time imu_timestamp;
@@ -1052,6 +1069,7 @@ void uvcROSDriver::uvc_cb(uvc_frame_t *frame)
 
 			count_prev = count;
 		}
+    */
 	}
 
 	if(imu_msg_counter_in_frame > 3) {
