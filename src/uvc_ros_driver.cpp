@@ -949,7 +949,7 @@ void uvcROSDriver::uvc_cb(uvc_frame_t *frame)
 
 		count = count & 0x00FF;
 
-    /*
+    
 		double temperature = double(ShortSwap(static_cast<int16_t *>(
 				frame->data)[int((i + 1) * frame->width - 8 + 1)]));
 
@@ -976,7 +976,7 @@ void uvcROSDriver::uvc_cb(uvc_frame_t *frame)
 						 frame->data)[int((i + 1) * frame->width - 8 + 7)]) /
 			       (gyr_scale_factor / deg2rad));
 
-    */
+    
 		// read out micro second timestamp of corresponding line
 		timestamp_upper = ((static_cast<uint16_t *>(
 					    frame->data)[int((i + 1) * frame->width - 10)]) >>
@@ -1010,7 +1010,7 @@ void uvcROSDriver::uvc_cb(uvc_frame_t *frame)
 		}
 
 
-    /*
+    
 		if (!(count == count_prev)) {
 
 			ros::Time imu_timestamp;
@@ -1069,7 +1069,7 @@ void uvcROSDriver::uvc_cb(uvc_frame_t *frame)
 
 			count_prev = count;
 		}
-    */
+    
 	}
 
 	if(imu_msg_counter_in_frame > 3) {
